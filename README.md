@@ -34,7 +34,7 @@ This repository provides reusable, standardized Jenkins pipeline steps (vars) fo
 ## ⚙️ Prerequisites & Jenkins Controller Requirements
 
 To consume these shared libraries in your Jenkins CI/CD controllers:
-- **Jenkins Controller**: Jenkins LTS 2.440+ running on Java 21 or 25 LTS
+- **Jenkins Controller**: Jenkins LTS running on Java 25 LTS (image: `jenkins/jenkins:lts-jdk25`)
 - **Required Jenkins Plugins**:
   - `Multibranch Scan Webhook Trigger` (`multibranch-scan-webhook-trigger`): Instant build triggers via webhooks
   - `Pipeline: Shared Groovy Libraries` (`workflow-cps-global-lib`): Core shared library support

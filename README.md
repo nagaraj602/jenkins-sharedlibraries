@@ -1,105 +1,115 @@
-# Jenkins Shared Libraries for Marketplace Risk Detection Platform
+# Jenkins Shared Libraries for Movie Analyzer Platform
 
-This repository provides reusable, standardized Jenkins pipeline steps (vars) for the **Marketplace Seller Risk & Abuse Detection Platform**.
+[![Jenkins](https://img.shields.io/badge/Jenkins-LTS-red?logo=jenkins)](https://www.jenkins.io/)
+[![Java](https://img.shields.io/badge/Java-25%20LTS-orange.svg)](https://adoptium.net/)
+[![Groovy](https://img.shields.io/badge/Language-Groovy-blue.svg)](https://groovy-lang.org/)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-nagaraj602%2Fjenkins--sharedlibraries-blue?logo=github)](https://github.com/nagaraj602/jenkins-sharedlibraries.git)
+
+This repository provides reusable, standardized Jenkins CI/CD pipeline steps (`vars`) for the **Movie Analyzer Platform**, maintained by **nagaraj602**. It modularizes build, containerization, security scanning (Trivy, SonarQube), AWS ECR image distribution, and automated Amazon EKS 1.37 Helm deployments across development, staging, and production environments.
 
 ---
 
-## 🔗 Platform Repositories
+## 🔗 Platform Ecosystem & Repositories
 
-| Repository | GitHub Link | Purpose & Tech Stack |
+| Component | Repository Link | Tech Stack & Role |
 | :--- | :--- | :--- |
-| **Platform & Infrastructure** | [nagaraj602/marketplace-risk-platform](https://github.com/nagaraj602/marketplace-risk-platform.git) | Terraform AWS IaC (VPC, EKS 1.37, RDS PostgreSQL 17, Redis 7.4, Jenkins), DB init scripts, Docker Compose |
-| **Core Risk Backend** | [nagaraj602/marketplace-risk-backend](https://github.com/nagaraj602/marketplace-risk-backend.git) | Java 25 LTS, Spring Boot 4.1.2, JPA, Velocity Rule Engine, Risk Aggregation, Enforcement Orchestration |
-| **ML Anomaly Model** | [nagaraj602/marketplace-risk-anomaly-model](https://github.com/nagaraj602/marketplace-risk-anomaly-model.git) | Python 3.15.2, FastAPI 0.162, scikit-learn 1.9.1 Isolation Forest, behavioral anomaly inference |
-| **Trust & Safety Portal** | [nagaraj602/marketplace-risk-frontend](https://github.com/nagaraj602/marketplace-risk-frontend.git) | React 19, Vite 8, Node 24, Express 5, Lucide-React, live review queue & signal injection simulator |
-| **Jenkins Shared Libraries** | [nagaraj602/jenkins-sharedlibraries](https://github.com/nagaraj602/jenkins-sharedlibraries.git) | Reusable Groovy pipeline vars (`trivyScan`, `sonarAnalysis`, `dockerECRImagePush`, `kubernetesEKSHelmDeployEnv`) |
+| **Main Orchestration & IaC** | [movie-analyzer-project](https://github.com/nagaraj602/movie-analyzer-project.git) | Terraform (AWS EKS 1.37, RDS PostgreSQL 17, VPC, Jenkins), Docker Compose |
+| **Backend API Service** | [project-movie-analyzer-backend](https://github.com/nagaraj602/project-movie-analyzer-backend.git) | Java 21/25 LTS, Spring Boot 3.5, Hibernate/JPA, Actuator (Port `7280`) |
+| **Frontend Portal** | [project-movie-analyzer-frontend](https://github.com/nagaraj602/project-movie-analyzer-frontend.git) | React 19, Express 4, Node 24 LTS, White Aesthetic Design (Port `7180`) |
+| **AI/ML Model Service** | [project-movie-analyzer-model](https://github.com/nagaraj602/project-movie-analyzer-model.git) | Python 3.13/3.15, Flask 3.1, TextBlob, NLTK (Port `7380`) |
+| **Jenkins Shared Libraries** | [jenkins-sharedlibraries](https://github.com/nagaraj602/jenkins-sharedlibraries.git) | Reusable Jenkins Groovy pipelines (Trivy, SonarQube, Helm, ECR) |
 
 ---
 
-## 📁 Pipeline Steps (`vars/`)
+## 📁 Shared Pipeline Steps (`vars/`)
 
-| Step | Description |
-| :--- | :--- |
-| `gitCheckout(repo, branch, credId)` | Authenticated Git checkout supporting feature, dev, staging, and master branches |
-| `dockerImageBuild(imageName, tag, dockerfile)` | Container image build with multi-stage build optimization and tagging |
-| `dockerECRImagePush(image, tag, region, repo, credId)` | Automates AWS CLI v2 setup, ECR repository validation, login, and image push |
-| `dockerHubImagePush(image, tag, credId)` | Docker Hub push with credential bindings |
-| `trivyScan(scanType, target, severity, exitCode, report)` | Trivy security scanner for `fs`, `config` (Dockerfile misconfigurations), and `image` vulnerabilities |
-| `sonarAnalysis(projectName, projectKey, server, credId)` | SonarQube static code analysis with quality gate hard failure gating |
-| `kubernetesEKSHelmDeployEnv(reg, tag, chart, cred, region, cluster, ns)` | Deploys microservices via Helm using environment values (`DEV.yaml`, `UAT.yaml`, `PROD.yaml`) |
-| `mavenBuild(goals)` | Apache Maven build runner for Java microservices |
+| Step | Parameters | Description |
+| :--- | :--- | :--- |
+| `gitCheckout` | `(repoUrl, branch, credId)` | Authenticated Git checkout for PRs and multibranch builds |
+| `dockerImageBuild` | `(imageName, dockerTag, dockerfile = 'Dockerfile')` | Builds container images using Docker CLI |
+| `dockerECRImagePush` | `(registry, tag, region, repoName, credId)` | Authenticates to Amazon ECR via AWS CLI v2 and pushes images |
+| `dockerHubImagePush` | `(registry, tag, credId)` | Authenticates and pushes images to Docker Hub registry |
+| `trivyScan` | `(scanType, target, severity, exitCode, reportName)` | Security scanner for filesystem, Dockerfiles, and image vulnerabilities |
+| `sonarAnalysis` | `(projectName, projectKey, sonarServer, credId)` | Executes SonarQube static code quality analysis and checks quality gate |
+| `kubernetesEKSHelmDeploy` | `(chartName, namespace)` | Deploys Helm chart to EKS using environment values (`DEV.yaml`, `STAGING.yaml`, `PROD.yaml`) |
+| `kubernetesEKSHelmDeployEnv` | `(registry, tag, chart, cred, region, cluster, ns)` | Full-parameter EKS Helm deployment with automated AWS/Helm CLI provisioning |
+| `mavenBuild` | `(goals = 'clean package -DskipTests')` | Executes Maven builds with clean target packaging |
 
 ---
 
 ## ⚙️ Prerequisites & Jenkins Controller Requirements
 
-To consume these shared libraries in your Jenkins CI/CD controllers:
-- **Jenkins Controller**: Jenkins LTS running on Java 25 LTS (image: `jenkins/jenkins:lts-jdk25`)
-- **Required Jenkins Plugins**:
-  - `Multibranch Scan Webhook Trigger` (`multibranch-scan-webhook-trigger`): Instant build triggers via webhooks
-  - `Pipeline: Shared Groovy Libraries` (`workflow-cps-global-lib`): Core shared library support
-  - `GitHub Branch Source` (`github-branch-source`): Branch & PR discovery
-  - `SonarQube Scanner for Jenkins` (`sonar`): Static analysis and quality gate checks
-  - `Docker Pipeline` (`docker-workflow`): Image building and registry integration
-  - `AWS Credentials Plugin` (`aws-credentials`): ECR and EKS authentication
-  - `Credentials Binding Plugin` (`credentials-binding`): Secure credentials injection
-- **Agent Node Prerequisites**:
-  - Docker Engine 24+ & Docker CLI (socket mounted `/var/run/docker.sock`)
-  - AWS CLI v2 (`aws`)
-  - Helm v3+ / v4 (`helm`)
-  - Trivy security scanner CLI (`trivy`)
-  - JDK 25 LTS & Maven 3.9+
-  - Python 3.15.2+ & Node.js 24 LTS
-- **Configured Credentials in Jenkins**:
-  - `githubCred`: Secret text / GitHub Personal Access Token (PAT) with `repo`, `admin:repo_hook` scopes
-  - `awsCred`: AWS Access Key ID + Secret Key credentials binding (for ECR and EKS)
-  - `sonarToken`: SonarQube User token configured under SonarQube Server settings
+### 1. Jenkins Controller Configuration
+* **Jenkins Controller**: Jenkins LTS running on Java 25 LTS (recommended image: `jenkins/jenkins:lts-jdk25`).
+* **Required Jenkins Plugins**:
+  * **Multibranch Scan Webhook Trigger** (`multibranch-scan-webhook-trigger`): Real-time build triggering on GitHub push and pull requests.
+  * **Pipeline: Shared Groovy Libraries** (`workflow-cps-global-lib`): Global shared library integration.
+  * **GitHub Branch Source** (`github-branch-source`): Automatic branch & PR discovery.
+  * **SonarQube Scanner for Jenkins** (`sonar`): Code quality evaluation and quality gate enforcement.
+  * **Docker Pipeline** (`docker-workflow`): Docker build and agent execution.
+  * **AWS Credentials Plugin** (`aws-credentials`): Seamless AWS IAM credentials binding.
+  * **Credentials Binding Plugin** (`credentials-binding`): Secure injection of passwords, secrets, and SSH keys.
+
+### 2. Jenkins Agent Node Tools
+* **Docker Engine 24+** (with user added to `docker` group)
+* **AWS CLI v2** (`aws`)
+* **Helm v3+** (`helm`)
+* **kubectl** compatible with Kubernetes 1.37
+* **JDK 25 LTS** & **Maven 3.9+**
+* **Python 3.13 / 3.15** & **Node.js 24 LTS**
+* **Trivy CLI** (`trivy`)
+
+### 3. Configured Credentials in Jenkins
+* `githubCred`: Username with Password (or GitHub PAT with `repo`, `admin:repo_hook` scopes).
+* `awsCred`: AWS Access Key ID + Secret Key credentials binding.
+* `sonarToken`: Secret text containing SonarQube user analysis token.
 
 ---
 
-## 🛠️ Step-by-Step Jenkins Shared Library Setup
+## 🛠️ Step-by-Step Setup Guide
 
 ### 1. Register Global Shared Library in Jenkins
-1. Go to **Manage Jenkins** > **System** (or **Configure System**).
-2. Scroll down to the **Global Pipeline Libraries** section.
+1. Open Jenkins Dashboard -> **Manage Jenkins** -> **System** (or **Configure System**).
+2. Scroll to **Global Pipeline Libraries**.
 3. Click **Add**:
-   - **Name**: `sharedlibrary` *(Must match `@Library('sharedlibrary')_` in all Jenkinsfiles)*
-   - **Default version**: `main` (or `master`)
-   - **Load implicitly**: Unchecked
-   - **Allow default version to be overridden**: Checked
-   - **Include @Library changes in job recent changes**: Checked
-   - **Retrieval method**: Modern SCM
-   - **Source Code Management**: Git
-   - **Project Repository**: `https://github.com/nagaraj602/jenkins-sharedlibraries.git`
-   - **Credentials**: `githubCred`
+   * **Name**: `sharedlibrary` *(Must match `@Library('sharedlibrary')_` in microservice Jenkinsfiles)*
+   * **Default version**: `main`
+   * **Load implicitly**: Unchecked
+   * **Allow default version to be overridden**: Checked
+   * **Retrieval method**: Modern SCM -> **Git**
+   * **Project Repository**: `https://github.com/nagaraj602/jenkins-sharedlibraries.git`
+   * **Credentials**: `githubCred`
 4. Click **Save**.
 
-### 2. Configure Multibranch Pipeline Jobs
-For each microservice repository (`marketplace-risk-backend`, `marketplace-risk-frontend`, `marketplace-risk-anomaly-model`):
-1. In the Jenkins dashboard, click **New Item**.
-2. Enter the item name and choose **Multibranch Pipeline**.
-3. Under **Branch Sources**:
-   - Add source: **GitHub** (or **Git**)
-   - Repository URL: `https://github.com/nagaraj602/<repo-name>.git`
-   - Credentials: `githubCred`
-   - Discover branches: Filter `main master staging dev feature/*`
-   - Discover pull requests: Strategy `The current pull request revision`
+### 2. Configure SonarQube Server
+1. Go to **Manage Jenkins** -> **System** -> **SonarQube servers**.
+2. Add SonarQube installation:
+   * **Name**: `sonar-server`
+   * **Server URL**: `http://<jenkins-agent-ip>:9000`
+   * **Server authentication token**: `sonarToken`
+3. Go to **Manage Jenkins** -> **Tools** -> **SonarQube Scanner**:
+   * **Name**: `sonar-scanner`
+   * Check **Install automatically**.
+
+### 3. Setup Multibranch Pipeline Jobs
+For each microservice repository (`project-movie-analyzer-backend`, `project-movie-analyzer-frontend`, `project-movie-analyzer-model`):
+1. Click **New Item** -> Name it (e.g., `movie-analyzer-backend`) -> Select **Multibranch Pipeline**.
+2. Under **Branch Sources**:
+   * Add source: **GitHub**
+   * Repository HTTPS URL: `https://github.com/nagaraj602/<repo-name>.git`
+   * Credentials: `githubCred`
+   * Discover branches: `main master staging dev`
+   * Discover pull requests: `The current pull request revision`
+3. Under **Scan Multibranch Pipeline Triggers**:
+   * Check **Scan by webhook**
+   * Trigger token: `<repo-name>-trigger`
 4. Under **Build Configuration**:
-   - Mode: `by Jenkinsfile`
-   - Script Path: `Jenkinsfile`
+   * Script Path: `Jenkinsfile`
+5. Click **Save**.
 
-### 3. Configure Multibranch Scan Webhook Trigger
-1. In the job configuration, scroll to **Scan Multibranch Pipeline Triggers**.
-2. Check **Scan by webhook**.
-3. Set **Trigger token**: e.g., `marketplace-risk-backend-token`
-4. Webhook URL:
-   `http://<JENKINS_HOST>:8080/multibranch-webhook-trigger/invoke?token=marketplace-risk-backend-token`
-
-### 4. Setup Webhook in GitHub Repository
-1. In GitHub, go to your repository **Settings** > **Webhooks** > **Add webhook**.
-2. **Payload URL**: `http://<JENKINS_HOST>:8080/multibranch-webhook-trigger/invoke?token=<TRIGGER_TOKEN>`
-3. **Content type**: `application/json`
-4. **Events**: Select **Let me select individual events**:
-   - ✅ **Pushes**
-   - ✅ **Pull requests**
-5. **Active**: Checked. Click **Add webhook**.
+### 4. Configure GitHub Webhook
+In GitHub repository **Settings** -> **Webhooks** -> **Add webhook**:
+* **Payload URL**: `http://<JENKINS_PUBLIC_URL>/multibranch-webhook-trigger/invoke?token=<TRIGGER_TOKEN>`
+* **Content type**: `application/json`
+* **Events**: Pushes & Pull Requests
+* **Active**: Checked

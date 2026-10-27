@@ -9,7 +9,7 @@ This repository provides reusable, standardized Jenkins pipeline steps (vars) fo
 | Repository | GitHub Link | Purpose & Tech Stack |
 | :--- | :--- | :--- |
 | **Platform & Infrastructure** | [nagaraj602/marketplace-risk-platform](https://github.com/nagaraj602/marketplace-risk-platform.git) | Terraform AWS IaC (VPC, EKS 1.37, RDS PostgreSQL 17, Redis 7.4, Jenkins), DB init scripts, Docker Compose |
-| **Core Risk Backend** | [nagaraj602/marketplace-risk-backend](https://github.com/nagaraj602/marketplace-risk-backend.git) | Java 21, Spring Boot 4.1.2, JPA, Velocity Rule Engine, Risk Aggregation, Enforcement Orchestration |
+| **Core Risk Backend** | [nagaraj602/marketplace-risk-backend](https://github.com/nagaraj602/marketplace-risk-backend.git) | Java 25 LTS, Spring Boot 4.1.2, JPA, Velocity Rule Engine, Risk Aggregation, Enforcement Orchestration |
 | **ML Anomaly Model** | [nagaraj602/marketplace-risk-anomaly-model](https://github.com/nagaraj602/marketplace-risk-anomaly-model.git) | Python 3.15.2, FastAPI 0.162, scikit-learn 1.9.1 Isolation Forest, behavioral anomaly inference |
 | **Trust & Safety Portal** | [nagaraj602/marketplace-risk-frontend](https://github.com/nagaraj602/marketplace-risk-frontend.git) | React 19, Vite 8, Node 24, Express 5, Lucide-React, live review queue & signal injection simulator |
 | **Jenkins Shared Libraries** | [nagaraj602/jenkins-sharedlibraries](https://github.com/nagaraj602/jenkins-sharedlibraries.git) | Reusable Groovy pipeline vars (`trivyScan`, `sonarAnalysis`, `dockerECRImagePush`, `kubernetesEKSHelmDeployEnv`) |
@@ -34,7 +34,7 @@ This repository provides reusable, standardized Jenkins pipeline steps (vars) fo
 ## ⚙️ Prerequisites & Jenkins Controller Requirements
 
 To consume these shared libraries in your Jenkins CI/CD controllers:
-- **Jenkins Controller**: Jenkins LTS 2.440+ running on Java 17 or 21
+- **Jenkins Controller**: Jenkins LTS 2.440+ running on Java 21 or 25 LTS
 - **Required Jenkins Plugins**:
   - `Pipeline: Shared Groovy Libraries` (`workflow-cps-global-lib`)
   - `SonarQube Scanner for Jenkins` (`sonar`)
@@ -46,7 +46,7 @@ To consume these shared libraries in your Jenkins CI/CD controllers:
   - AWS CLI v2 (`aws`)
   - Helm v3+ (`helm`)
   - Trivy security scanner CLI (`trivy`)
-  - JDK 21 & Maven 3.9+
+  - JDK 25 LTS & Maven 3.9+
   - Python 3.15.2+ & Node.js 24 LTS
 - **Configured Credentials in Jenkins**:
   - `githubCred`: Secret text / GitHub Personal Access Token

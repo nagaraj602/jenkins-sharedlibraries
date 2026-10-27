@@ -31,6 +31,30 @@ This repository provides reusable, standardized Jenkins pipeline steps (vars) fo
 
 ---
 
+## ⚙️ Prerequisites & Jenkins Controller Requirements
+
+To consume these shared libraries in your Jenkins CI/CD controllers:
+- **Jenkins Controller**: Jenkins LTS 2.440+ running on Java 17 or 21
+- **Required Jenkins Plugins**:
+  - `Pipeline: Shared Groovy Libraries` (`workflow-cps-global-lib`)
+  - `SonarQube Scanner for Jenkins` (`sonar`)
+  - `Docker Pipeline` (`docker-workflow`)
+  - `AWS Credentials Plugin` (`aws-credentials`)
+  - `Credentials Binding Plugin` (`credentials-binding`)
+- **Agent Node Prerequisites**:
+  - Docker Engine 24+ & Docker CLI (socket mounted `/var/run/docker.sock`)
+  - AWS CLI v2 (`aws`)
+  - Helm v3+ (`helm`)
+  - Trivy security scanner CLI (`trivy`)
+  - JDK 21 & Maven 3.9+
+  - Python 3.15.2+ & Node.js 24 LTS
+- **Configured Credentials in Jenkins**:
+  - `githubCred`: Secret text / GitHub Personal Access Token
+  - `awsCredentials`: AWS Access Key ID + Secret Key credentials binding
+  - `sonarServer`: SonarQube Server endpoint configured under Jenkins System settings
+
+---
+
 ## ⚙️ Configuration in Jenkins
 
 1. Go to **Manage Jenkins** > **System**.

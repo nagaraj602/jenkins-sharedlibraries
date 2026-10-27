@@ -15,7 +15,7 @@ This repository provides reusable, standardized Jenkins CI/CD pipeline steps (`v
 | :--- | :--- | :--- |
 | **Main Orchestration & IaC** | [movie-analyzer-project](https://github.com/nagaraj602/movie-analyzer-project.git) | Terraform (AWS EKS 1.37, RDS PostgreSQL 17, VPC, Jenkins), Docker Compose |
 | **Backend API Service** | [project-movie-analyzer-backend](https://github.com/nagaraj602/project-movie-analyzer-backend.git) | Java 21/25 LTS, Spring Boot 3.5, Hibernate/JPA, Actuator (Port `7280`) |
-| **Frontend Portal** | [project-movie-analyzer-frontend](https://github.com/nagaraj602/project-movie-analyzer-frontend.git) | React 19, Express 4, Node 24 LTS, White Aesthetic Design (Port `7180`) |
+| **Frontend Portal** | [project-movie-analyzer-frontend](https://github.com/nagaraj602/project-movie-analyzer-frontend.git) | React 19, Express 4, Node 24 LTS (Port `7180`) |
 | **AI/ML Model Service** | [project-movie-analyzer-model](https://github.com/nagaraj602/project-movie-analyzer-model.git) | Python 3.13/3.15, Flask 3.1, TextBlob, NLTK (Port `7380`) |
 | **Jenkins Shared Libraries** | [jenkins-sharedlibraries](https://github.com/nagaraj602/jenkins-sharedlibraries.git) | Reusable Jenkins Groovy pipelines (Trivy, SonarQube, Helm, ECR) |
 
